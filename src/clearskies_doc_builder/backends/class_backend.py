@@ -1,6 +1,5 @@
-from typing import Any, Callable, Type
+from typing import Any
 from types import ModuleType
-import sys
 import importlib
 import inspect
 
@@ -8,7 +7,6 @@ import clearskies
 import clearskies.model
 import clearskies.column
 import clearskies.query
-from clearskies.autodoc.schema import Schema as AutoDocSchema
 from clearskies_doc_builder.backends.module_backend import ModuleBackend
 
 
@@ -81,7 +79,7 @@ class ClassBackend(ModuleBackend):
 
         return self.paginate(matching_classes, query)
 
-    def unpack(self, Class: type, module: ModuleType) -> dict[str, Any]:
+    def unpack(self, Class: type, module: ModuleType) -> dict[str, Any]:  # type: ignore
         source_file = ""
         try:
             # this fails for built ins

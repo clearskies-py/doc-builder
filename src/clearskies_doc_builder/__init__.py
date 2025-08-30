@@ -6,6 +6,7 @@ import clearskies
 from clearskies_doc_builder import models, backends
 from clearskies_doc_builder.build_callable import build_callable
 
+
 def build(build_file_string: str) -> None:
     # We assume a folder structure here where the repo root contains a `src/` folder and a `docs/python` folder.
     # `build_file_string` should contain the absolute path to the file that kicked this off, which should
@@ -22,15 +23,12 @@ def build(build_file_string: str) -> None:
     config = json.loads(config_file.read())
     config_file.close()
 
-    print(doc_python_path)
-    print(project_root)
-
     cli = clearskies.contexts.Cli(
         build_callable,
         modules=[models, backends],
         bindings={
             "config": config,
-            "project_root": project_root,
+            "project_root": project_root / "docs",
         },
     )
     cli()

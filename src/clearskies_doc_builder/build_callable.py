@@ -1,10 +1,10 @@
-import clearskies
+from typing import Any
+
 from clearskies_doc_builder import models
 from clearskies_doc_builder.prepare_doc_space import prepare_doc_space
-from clearskies_doc_builder.builders import Module
 
 
-def build_callable(modules: models.Module, classes: models.Class, config: str, project_root: str):
+def build_callable(modules: models.Module, classes: models.Class, config: dict[str, Any], project_root: str):
     doc_root = prepare_doc_space(project_root)
     nav_order_parent_count = {}
 

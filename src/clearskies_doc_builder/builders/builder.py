@@ -4,7 +4,7 @@ import pathlib
 
 
 class Builder:
-    _attribute_cache: dict[str, str] = {}
+    _attribute_cache: dict[str, dict[str, str]] = {}
 
     def __init__(self, branch, modules, classes, doc_root, nav_order):
         self.modules = modules
@@ -14,6 +14,7 @@ class Builder:
         self.source = branch["source"]
         self.nav_order = nav_order
         self._attribute_cache = {}
+        self.args_to_additional_attributes_map = {}
 
     def make_index_from_class_overview(self, title_snake_case, source_class, section_folder_path):
         filename = "index"
@@ -116,7 +117,7 @@ nav_order: {nav_order}
             header += f"parent: {parent}\n"
         if has_children:
             header += "has_children: true\n"
-        header += f"---"
+        header += "---"
         return header
 
     def raw_docblock_to_md(self, docblock):

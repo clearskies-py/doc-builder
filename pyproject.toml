@@ -1,7 +1,7 @@
 [project]
 name = "clear-skies-doc-builder"
 description = "The docbuilder for all 'official' clearskies plugins (as well as the main clearskies docs)"
-version = "v0.0.0-dev"
+version = "v2.0.0"
 license = "MIT"
 dynamic = ["classifiers"]
 readme = "./README.md"
@@ -14,13 +14,12 @@ repository = "https://github.com/clearskies-py/docs"
 
 [tool.poetry]
 packages = [
-    { include = "doc_builder", from = "src" }
+    { include = "clearskies_doc_builder", from = "src" }
 ]
 exclude = [
-    "src/doc_builder/*_test.py",
-    "src/doc_builder/**/*_test.py",
-    "src/doc_builder/integration_tests/*",
-    "docs/**"
+    "src/clearskies_doc_builder/*_test.py",
+    "src/clearskies_doc_builder/**/*_test.py",
+    "src/clearskies_doc_builder/integration_tests/*"
 ]
 classifiers = [
     "Development Status :: 5 - Production/Stable",

@@ -1,7 +1,5 @@
-import pathlib
 from typing import Any
 from collections import OrderedDict
-import re
 
 import clearskies
 from .builder import Builder
@@ -33,7 +31,7 @@ class SingleClass(Builder):
         )
         class_doc += f"\n\n# {self.title}\n\n{elevator_pitch}\n\n"
         main_doc = f"## Overview\n\n{overview}\n\n"
-        table_of_contents = f" 1. [Overview](#overview)\n"
+        table_of_contents = " 1. [Overview](#overview)\n"
 
         default_args = self.default_args()
 

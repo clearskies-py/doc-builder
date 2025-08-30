@@ -1,22 +1,18 @@
-from typing import Any, Callable
-from types import ModuleType
-import sys
-import importlib
 import inspect
+from typing import Any
 
 import clearskies
 import clearskies.model
 import clearskies.column
 import clearskies.query
-from clearskies.autodoc.schema import Schema as AutoDocSchema
 from clearskies_doc_builder.backends.module_backend import ModuleBackend
 
 
 class AttributeBackend(ModuleBackend):
     _search_functions = {
-        "id": lambda attribute, name, value: id(attribute) == int(value),
-        "name": lambda attribute, name, value: name == value,
-        "type": lambda attribute, name, value: attribute.__class__ == value,
+        "id": lambda attribute, name, value: id(attribute) == int(value),  # type: ignore
+        "name": lambda attribute, name, value: name == value,  # type: ignore
+        "type": lambda attribute, name, value: attribute.__class__ == value,  # type: ignore
     }
 
     def records(
@@ -49,7 +45,7 @@ class AttributeBackend(ModuleBackend):
             for condition in query.conditions:
                 if condition.column_name not in self._search_functions:
                     continue
-                if not self._search_functions[condition.column_name](attribute, name, condition.values[0]):
+                if not self._search_functions[condition.column_name](attribute, name, condition.values[0]):  # type: ignore
                     matches = False
 
             if not matches:
@@ -58,11 +54,11 @@ class AttributeBackend(ModuleBackend):
 
         return self.paginate(matching_attributes, query)
 
-    def unpack(self, attribute: Any, name: str, parent_class: type) -> dict[str, Any]:
+    def unpack(self, attribute: Any, name: str, parent_class: type) -> dict[str, Any]:  # type: ignore
         all_args = []
         args = []
         kwargs = []
-        defaults = {}
+        defaults: dict[str, Any] = {}
         argdata = None
         try:
             argdata = inspect.getfullargspec(attribute)

@@ -1,4 +1,4 @@
-from typing import Any, Callable, Type
+from typing import Any, Callable
 from types import ModuleType
 import sys
 import importlib
@@ -8,6 +8,7 @@ import clearskies.model
 import clearskies.column
 import clearskies.query
 from clearskies.autodoc.schema import Schema as AutoDocSchema
+from clearskies.autodoc.schema import Integer as AutoDocInteger
 
 
 class ModuleBackend(clearskies.backends.Backend):
@@ -40,7 +41,7 @@ class ModuleBackend(clearskies.backends.Backend):
         """
         Returns the number of records which match the given query configuration
         """
-        return len(records(query))
+        return len(self.records(query))
 
     def records(
         self, query: clearskies.query.Query, next_page_data: dict[str, str | int] | None = None

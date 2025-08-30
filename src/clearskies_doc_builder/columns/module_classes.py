@@ -1,11 +1,6 @@
 from __future__ import annotations
-from typing import overload, Self, TYPE_CHECKING
-from types import ModuleType
 
 import clearskies
-
-if TYPE_CHECKING:
-    from clearskies import Model
 
 
 class ModuleClasses(clearskies.columns.HasMany):
