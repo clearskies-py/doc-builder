@@ -2,9 +2,10 @@ import inspect
 from typing import Any
 
 import clearskies
-import clearskies.model
 import clearskies.column
+import clearskies.model
 import clearskies.query
+
 from clearskies_doc_builder.backends.module_backend import ModuleBackend
 
 
@@ -19,7 +20,7 @@ class AttributeBackend(ModuleBackend):
         self, query: clearskies.query.Query, next_page_data: dict[str, str | int] | None = None
     ) -> list[dict[str, Any]]:
         """
-        Returns a list of records that match the given query configuration
+        Return a list of records that match the given query configuration.
 
         next_page_data is used to return data to the caller.  Pass in an empty dictionary, and it will be populated
         with the data needed to return the next page of results.  If it is still an empty dictionary when returned,

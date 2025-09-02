@@ -1,0 +1,12 @@
+# Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
+_commit: v0.0.26
+_src_path: https://github.com/clearskies-py/clearskies-module-template
+author_email: cmancone@gmail.com
+author_name: Conor Mancone
+create_backends: true
+create_columns: true
+create_configs: true
+create_endpoints: false
+create_models: true
+module_display_name: Doc Builder
+module_name: doc-builder

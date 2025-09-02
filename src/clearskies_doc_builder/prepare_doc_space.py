@@ -1,5 +1,5 @@
-import shutil
 import pathlib
+import shutil
 
 
 def prepare_doc_space(project_root):

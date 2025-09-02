@@ -1,14 +1,14 @@
-from typing import Any, Callable
-from types import ModuleType
-import sys
 import importlib
+import sys
+from types import ModuleType
+from typing import Any, Callable
 
 import clearskies
-import clearskies.model
 import clearskies.column
+import clearskies.model
 import clearskies.query
-from clearskies.autodoc.schema import Schema as AutoDocSchema
 from clearskies.autodoc.schema import Integer as AutoDocInteger
+from clearskies.autodoc.schema import Schema as AutoDocSchema
 
 
 class ModuleBackend(clearskies.backends.Backend):
@@ -20,34 +20,26 @@ class ModuleBackend(clearskies.backends.Backend):
     }
 
     def update(self, id: int | str, data: dict[str, Any], model: clearskies.model.Model) -> dict[str, Any]:
-        """
-        Updates the record with the given id with the information from the data dictionary
-        """
+        """Update the record with the given id with the information from the data dictionary."""
         raise Exception(f"The {self.__class__.__name__} only supports read operations: update is not allowed")
 
     def create(self, data: dict[str, Any], model: clearskies.model.Model) -> dict[str, Any]:
-        """
-        Creates a record with the information from the data dictionary
-        """
+        """Create a record with the information from the data dictionary."""
         raise Exception(f"The {self.__class__.__name__} only supports read operations: create is not allowed")
 
     def delete(self, id: int | str, model: clearskies.model.Model) -> bool:
-        """
-        Deletes the record with the given id
-        """
+        """Delete the record with the given id."""
         raise Exception(f"The {self.__class__.__name__} only supports read operations: delete is not allowed")
 
     def count(self, query: clearskies.query.Query) -> int:
-        """
-        Returns the number of records which match the given query configuration
-        """
+        """Return the number of records which match the given query configuration."""
         return len(self.records(query))
 
     def records(
         self, query: clearskies.query.Query, next_page_data: dict[str, str | int] | None = None
     ) -> list[dict[str, Any]]:
         """
-        Returns a list of records that match the given query configuration
+        Return a list of records that match the given query configuration.
 
         next_page_data is used to return data to the caller.  Pass in an empty dictionary, and it will be populated
         with the data needed to return the next page of results.  If it is still an empty dictionary when returned,

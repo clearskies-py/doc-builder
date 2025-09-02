@@ -1,6 +1,7 @@
 from __future__ import annotations
-from typing import Any, overload, Self, TYPE_CHECKING
+
 from types import ModuleType
+from typing import TYPE_CHECKING, Any, Self, overload
 
 import clearskies
 

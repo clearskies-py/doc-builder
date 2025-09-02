@@ -1,7 +1,8 @@
-from typing import Any
 from collections import OrderedDict
+from typing import Any
 
 import clearskies
+
 from .builder import Builder
 
 
@@ -57,7 +58,7 @@ class Module(Builder):
 
             for index, arg in enumerate(arguments.keys()):
                 arg_data = arguments[arg]
-                table_of_contents += f" {index+2}. [{arg}](#{arg})\n"
+                table_of_contents += f" {index + 2}. [{arg}](#{arg})\n"
                 main_doc += f"## {arg}\n**" + ("Required" if arg_data["required"] else "Optional") + "**\n\n"
                 main_doc += self.raw_docblock_to_md(arg_data["doc"].replace('"""', "")) + "\n\n"
 

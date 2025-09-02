@@ -1,5 +1,7 @@
 import clearskies
+
 from clearskies_doc_builder import backends, columns
+
 from .attribute_reference import AttributeReference
 from .method_reference import MethodReference
 
