@@ -1,5 +1,6 @@
 from __future__ import annotations
-from typing import overload, Self, TYPE_CHECKING
+
+from typing import TYPE_CHECKING, Self, overload
 from typing import Any as AnyType
 
 import clearskies

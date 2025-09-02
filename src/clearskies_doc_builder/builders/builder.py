@@ -1,6 +1,6 @@
+import pathlib
 import re
 import tokenize
-import pathlib
 
 
 class Builder:

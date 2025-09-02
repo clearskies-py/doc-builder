@@ -1,6 +1,7 @@
 import re
 
 import clearskies
+
 from .builder import Builder
 
 
@@ -27,7 +28,7 @@ class SingleClassToSection(Builder):
 
             for index, attribute_name in enumerate(doc_data["attributes"]):
                 attribute = source_class.attributes.find(f"name={attribute_name}")
-                table_of_contents += f" {index+1}. [{attribute_name}]({title_snake_case}.html#{attribute_name})\n"
+                table_of_contents += f" {index + 1}. [{attribute_name}]({title_snake_case}.html#{attribute_name})\n"
                 attribute_docs += f"\n\n## {attribute_name}\n\n"
                 attribute_docs += re.sub("\n    ", "\n", self.raw_docblock_to_md(attribute.doc))
 

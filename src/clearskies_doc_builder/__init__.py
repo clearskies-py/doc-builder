@@ -1,9 +1,10 @@
+import json
 import pathlib
 import sys
-import json
 
 import clearskies
-from clearskies_doc_builder import models, backends
+
+from clearskies_doc_builder import backends, models
 from clearskies_doc_builder.build_callable import build_callable
 
 
