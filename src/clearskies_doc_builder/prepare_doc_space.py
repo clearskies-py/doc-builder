@@ -8,6 +8,8 @@ def prepare_doc_space(project_root):
     doc_path = build_path / "docs"
     jekyll_path = project_path / "jekyll"
     includes_path = jekyll_path / "_includes"
+    sass_path = jekyll_path / "_sass"
+    assets_path = jekyll_path / "assets"
 
     if doc_path.is_dir():
         shutil.rmtree(doc_path)
@@ -21,5 +23,11 @@ def prepare_doc_space(project_root):
     shutil.copytree(str(jekyll_path / "docs"), str(build_path / "docs"))
     if includes_path.is_dir():
         shutil.copytree(str(includes_path), str(build_path / "_includes"))
+
+    if sass_path.is_dir():
+        shutil.copytree(str(sass_path), str(build_path / "_sass"))
+
+    if assets_path.is_dir():
+        shutil.copytree(str(assets_path), str(build_path / "assets"))
 
     return str(doc_path)
