@@ -1,0 +1,50 @@
+{
+  "tree": [
+    {
+        "title": "Backends",
+        "source": "clearskies.backends.Backend",
+        "builder": "clearskies_doc_builder.builders.Module",
+        "classes": [
+            "clearskies_doc_builder.backends.AttributeBackend",
+            "clearskies_doc_builder.backends.ClassBackend",
+            "clearskies_doc_builder.backends.ModuleBackend"
+        ]
+    },
+    {
+        "title": "Builders",
+        "source": "clearskies_doc_builder.builders.builder.Builder",
+        "builder": "clearskies_doc_builder.builders.Module",
+        "classes": [
+            "clearskies_doc_builder.builders.Module",
+            "clearskies_doc_builder.builders.SingleClass",
+            "clearskies_doc_builder.builders.SingleClassToSection"
+        ]
+    },
+    {
+        "title": "Columns",
+        "source": "clearskies.Column",
+        "builder": "clearskies_doc_builder.builders.Module",
+        "classes": [
+            "clearskies_doc_builder.columns.Any",
+            "clearskies_doc_builder.columns.Attribute",
+            "clearskies_doc_builder.columns.Attributes",
+            "clearskies_doc_builder.columns.BaseClasses",
+            "clearskies_doc_builder.columns.Class",
+            "clearskies_doc_builder.columns.Module",
+            "clearskies_doc_builder.columns.ModuleClasses"
+        ]
+    },
+    {
+        "title": "Models",
+        "source": "clearskies.Model",
+        "builder": "clearskies_doc_builder.builders.Module",
+        "classes": [
+            "clearskies_doc_builder.models.Attribute",
+            "clearskies_doc_builder.models.Class",
+            "clearskies_doc_builder.models.ClassReference",
+            "clearskies_doc_builder.models.Method",
+            "clearskies_doc_builder.models.Module"
+        ]
+    }
+  ]
+}
