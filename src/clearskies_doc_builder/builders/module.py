@@ -33,7 +33,7 @@ class Module(Builder):
                 self.raw_docblock_to_md(source_class.doc).lstrip("\n").lstrip(" ")
             )
             class_doc += f"\n\n# {title}\n\n{elevator_pitch}\n\n"
-            main_doc = "## Overview\n\n{overview}\n\n"
+            main_doc = f"## Overview\n\n{overview}\n\n"
             table_of_contents = " 1. [Overview](#overview)\n"
 
             # Find the documentation for all of our init args.
