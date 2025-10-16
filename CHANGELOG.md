@@ -5,10 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.5] - 2025-10-16
+
+### Changed
+- Missing-f by @tnijboer in [#2](https://github.com/clearskies-py/doc-builder/pull/2)
+- Missing-f by @cmancone
+- Update copier
+- Update copier
+
 ## [2.0.4] - 2025-09-03
 
 ### Added
 - Add more folders to the build
+
+### Changed
+- Bump version to v2.0.4 by @github-actions[bot]
 
 ## [2.0.3] - 2025-09-03
 
@@ -45,6 +56,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * @ made their first contribution
 * @tnijboer made their first contribution in [#1](https://github.com/clearskies-py/doc-builder/pull/1)
 * @cmancone made their first contribution
+[2.0.5]: https://github.com/clearskies-py/doc-builder/compare/v2.0.4..v2.0.5
 [2.0.4]: https://github.com/clearskies-py/doc-builder/compare/v2.0.3..v2.0.4
 [2.0.3]: https://github.com/clearskies-py/doc-builder/compare/v2.0.2..v2.0.3
 [2.0.2]: https://github.com/clearskies-py/doc-builder/compare/v2.0.1..v2.0.2
