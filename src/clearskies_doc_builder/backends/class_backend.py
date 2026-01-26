@@ -7,6 +7,7 @@ import clearskies
 import clearskies.column
 import clearskies.model
 import clearskies.query
+from clearskies.query.result import RecordsQueryResult
 
 from clearskies_doc_builder.backends.module_backend import ModuleBackend
 
@@ -19,7 +20,7 @@ class ClassBackend(ModuleBackend):
 
     def records(
         self, query: clearskies.query.Query, next_page_data: dict[str, str | int] | None = None
-    ) -> list[dict[str, Any]]:
+    ) -> RecordsQueryResult:
         """
         Return a list of records that match the given query configuration.
 
@@ -53,7 +54,7 @@ class ClassBackend(ModuleBackend):
                 raise ValueError(
                     f"I was asked to import the class named '{import_path}' but this doesn't actually reference a class"
                 )
-            return [self.unpack(Class, module)]
+            return RecordsQueryResult(records=[self.unpack(Class, module)])
 
         if "module" not in query.conditions_by_column:
             raise ValueError(

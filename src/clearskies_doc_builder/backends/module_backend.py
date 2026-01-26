@@ -9,6 +9,7 @@ import clearskies.model
 import clearskies.query
 from clearskies.autodoc.schema import Integer as AutoDocInteger
 from clearskies.autodoc.schema import Schema as AutoDocSchema
+from clearskies.query.result import CountQueryResult, RecordQueryResult, RecordsQueryResult, SuccessQueryResult
 
 
 class ModuleBackend(clearskies.backends.Backend):
@@ -19,25 +20,25 @@ class ModuleBackend(clearskies.backends.Backend):
         "module": lambda module, value: id(module) == id(value),
     }
 
-    def update(self, id: int | str, data: dict[str, Any], model: clearskies.model.Model) -> dict[str, Any]:
+    def update(self, id: int | str, data: dict[str, Any], model: clearskies.model.Model) -> RecordQueryResult:
         """Update the record with the given id with the information from the data dictionary."""
         raise Exception(f"The {self.__class__.__name__} only supports read operations: update is not allowed")
 
-    def create(self, data: dict[str, Any], model: clearskies.model.Model) -> dict[str, Any]:
+    def create(self, data: dict[str, Any], model: clearskies.model.Model) -> RecordQueryResult:
         """Create a record with the information from the data dictionary."""
         raise Exception(f"The {self.__class__.__name__} only supports read operations: create is not allowed")
 
-    def delete(self, id: int | str, model: clearskies.model.Model) -> bool:
+    def delete(self, id: int | str, model: clearskies.model.Model) -> SuccessQueryResult:
         """Delete the record with the given id."""
         raise Exception(f"The {self.__class__.__name__} only supports read operations: delete is not allowed")
 
-    def count(self, query: clearskies.query.Query) -> int:
+    def count(self, query: clearskies.query.Query) -> CountQueryResult:
         """Return the number of records which match the given query configuration."""
-        return len(self.records(query))
+        return CountQueryResult(count=len(self.records(query).records))
 
     def records(
         self, query: clearskies.query.Query, next_page_data: dict[str, str | int] | None = None
-    ) -> list[dict[str, Any]]:
+    ) -> RecordsQueryResult:
         """
         Return a list of records that match the given query configuration.
 
@@ -58,7 +59,7 @@ class ModuleBackend(clearskies.backends.Backend):
         if module_name_condition:
             module_name = module_name_condition[0].values[0]
             module = importlib.import_module(module_name)
-            return [self.unpack(module)]
+            return RecordsQueryResult(records=[self.unpack(module)])
 
         matching_modules = []
         module_names = set(sys.modules) & set(globals())
@@ -92,8 +93,8 @@ class ModuleBackend(clearskies.backends.Backend):
             "module": module,
         }
 
-    def paginate(self, records, query):
-        return records
+    def paginate(self, records, query) -> RecordsQueryResult:
+        return RecordsQueryResult(records=records)
 
     def validate_pagination_data(self, data: dict[str, Any], case_mapping: Callable) -> str:
         extra_keys = set(data.keys()) - set(self.allowed_pagination_keys())

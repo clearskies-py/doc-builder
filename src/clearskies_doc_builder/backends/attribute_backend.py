@@ -5,6 +5,7 @@ import clearskies
 import clearskies.column
 import clearskies.model
 import clearskies.query
+from clearskies.query.result import RecordsQueryResult
 
 from clearskies_doc_builder.backends.module_backend import ModuleBackend
 
@@ -18,7 +19,7 @@ class AttributeBackend(ModuleBackend):
 
     def records(
         self, query: clearskies.query.Query, next_page_data: dict[str, str | int] | None = None
-    ) -> list[dict[str, Any]]:
+    ) -> RecordsQueryResult:
         """
         Return a list of records that match the given query configuration.
 
