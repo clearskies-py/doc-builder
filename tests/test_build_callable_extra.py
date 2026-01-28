@@ -447,3 +447,74 @@ def test_build_callable_auto_infer_entry_type(monkeypatch):
     assert child_nav_orders["Mango Submodule"] == 2, f"Expected 2, got {child_nav_orders['Mango Submodule']}"
     assert child_nav_orders["Apple Class"] == 3, f"Expected 3, got {child_nav_orders['Apple Class']}"
     assert child_nav_orders["Zebra Class"] == 4, f"Expected 4, got {child_nav_orders['Zebra Class']}"
+
+
+def test_build_callable_child_entry_count(monkeypatch):
+    """Test that child_entry_count is passed to builders for nav_order offset."""
+    import clearskies_doc_builder.prepare_doc_space
+
+    clearskies_doc_builder.prepare_doc_space.prepare_doc_space = lambda project_root: "/tmp/build"
+    import clearskies_doc_builder.build_callable
+
+    clearskies_doc_builder.build_callable.__globals__["prepare_doc_space"] = (
+        clearskies_doc_builder.prepare_doc_space.prepare_doc_space
+    )
+
+    all_init_args = []
+
+    class TrackingBuilder:
+        def __init__(self, branch, modules, classes, doc_root, nav_order):
+            all_init_args.append((branch, modules, classes, doc_root, nav_order))
+
+        def build(self):
+            pass
+
+    # Config simulating the Cursors scenario:
+    # - Cursors (parent with classes)
+    # - From Environment (child submodule)
+    # - Port Forwarders (child submodule)
+    config = {
+        "tree": [
+            {
+                "title": "Cursors",
+                "source": "clearskies.cursors.Cursor",
+                "builder": "clearskies_doc_builder.builders.Module",
+                "classes": ["clearskies.cursors.Sqlite", "clearskies.cursors.Mysql"],
+            },
+            {
+                "title": "From Environment",
+                "source": "clearskies.cursors.from_environment.Base",
+                "builder": "clearskies_doc_builder.builders.Module",
+                "parent": "Cursors",
+                "classes": ["clearskies.cursors.from_environment.Sqlite"],
+            },
+            {
+                "title": "Port Forwarders",
+                "source": "clearskies.cursors.port_forwarding.Base",
+                "builder": "clearskies_doc_builder.builders.Module",
+                "parent": "Cursors",
+                "classes": ["clearskies.cursors.port_forwarding.Ssh"],
+            },
+        ]
+    }
+    modules = DummyModule()
+    classes = DummyClass([TrackingBuilder] * 3)
+    build_callable(modules, classes, config, "/tmp")
+
+    # Verify all three builders were called
+    assert len(all_init_args) == 3
+
+    # Cursors should have child_entry_count = 2 (From Environment + Port Forwarders)
+    cursors_branch = all_init_args[0][0]
+    assert cursors_branch["title"] == "Cursors"
+    assert cursors_branch["child_entry_count"] == 2
+
+    # From Environment should have child_entry_count = 0 (no children)
+    from_env_branch = all_init_args[1][0]
+    assert from_env_branch["title"] == "From Environment"
+    assert from_env_branch["child_entry_count"] == 0
+
+    # Port Forwarders should have child_entry_count = 0 (no children)
+    port_fwd_branch = all_init_args[2][0]
+    assert port_fwd_branch["title"] == "Port Forwarders"
+    assert port_fwd_branch["child_entry_count"] == 0

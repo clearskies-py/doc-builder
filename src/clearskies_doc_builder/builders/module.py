@@ -13,6 +13,9 @@ class Module(Builder):
         self.args_to_additional_attributes_map = branch.get("args_to_additional_attributes_map", {})
         self.parent = branch.get("parent", False)
         self.grand_parent = branch.get("grand_parent", False)
+        # Number of child entries (submodules) under this module in the config tree
+        # Used to offset class nav_orders so child entries appear first in navigation
+        self.child_entry_count = branch.get("child_entry_count", 0)
 
     def build(self):
         title_snake_case = clearskies.functional.string.title_case_to_snake_case(self.title.replace(" ", "")).replace(
@@ -51,7 +54,9 @@ class Module(Builder):
 
         default_args = self.default_args()
 
-        nav_order = 0
+        # Start nav_order after any child entries (submodules) so they appear first
+        # Child entries get nav_order 1, 2, 3... and classes get nav_order after that
+        nav_order = self.child_entry_count
         for class_name in self.class_list:
             nav_order += 1
             source_class = self.classes.find(f"import_path={class_name}")

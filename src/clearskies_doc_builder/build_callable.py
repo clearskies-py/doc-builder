@@ -48,11 +48,15 @@ def _sort_key_for_entry(entry: dict[str, Any]) -> tuple[int, str]:
     return (type_priority, title)
 
 
-def _compute_nav_orders(tree: list[dict[str, Any]]) -> dict[int, int]:
+def _compute_nav_orders_and_child_counts(
+    tree: list[dict[str, Any]],
+) -> tuple[dict[int, int], dict[str, int]]:
     """
-    Compute nav_order for each entry in the tree based on sorting rules.
+    Compute nav_order for each entry and count children per parent.
 
-    Returns a dict mapping original tree index to computed nav_order.
+    Returns:
+        - nav_orders: dict mapping original tree index to computed nav_order
+        - child_counts: dict mapping parent title to number of child entries
 
     For entries with the same parent:
     - Groups by entry_type (submodules first, then classes)
@@ -60,6 +64,9 @@ def _compute_nav_orders(tree: list[dict[str, Any]]) -> dict[int, int]:
     - Assigns sequential nav_order values
 
     Top-level entries maintain their original order (index + 2).
+
+    The child_counts is used by Module builders to offset their internal class
+    nav_orders so that child entries (submodules) appear first in navigation.
     """
     # Group entries by their parent
     parent_groups: dict[str | None, list[tuple[int, dict[str, Any]]]] = {}
@@ -72,6 +79,7 @@ def _compute_nav_orders(tree: list[dict[str, Any]]) -> dict[int, int]:
 
     # Compute nav_order for each entry
     nav_orders: dict[int, int] = {}
+    child_counts: dict[str, int] = {}
 
     for parent, entries in parent_groups.items():
         if parent is None:
@@ -84,21 +92,34 @@ def _compute_nav_orders(tree: list[dict[str, Any]]) -> dict[int, int]:
             for nav_order, (original_index, entry) in enumerate(sorted_entries, start=1):
                 nav_orders[original_index] = nav_order
 
-    return nav_orders
+    # Count children for each parent (by title)
+    for entry in tree:
+        parent = entry.get("parent")
+        if parent:
+            child_counts[parent] = child_counts.get(parent, 0) + 1
+
+    return nav_orders, child_counts
 
 
 def build_callable(modules: models.Module, classes: models.Class, config: dict[str, Any], project_root: str):
     doc_root = prepare_doc_space(project_root)
 
-    # Pre-compute nav_orders based on sorting rules
-    nav_orders = _compute_nav_orders(config["tree"])
+    # Pre-compute nav_orders and child counts based on sorting rules
+    nav_orders, child_counts = _compute_nav_orders_and_child_counts(config["tree"])
 
     for index, branch in enumerate(config["tree"]):
         nav_order = nav_orders[index]
 
+        # Add child_entry_count to branch so Module builder can offset its class nav_orders
+        # This ensures child entries (submodules) appear first in navigation
+        branch_with_child_count = {
+            **branch,
+            "child_entry_count": child_counts.get(branch["title"], 0),
+        }
+
         builder_class = classes.find("import_path=" + branch["builder"]).type
         builder = builder_class(
-            branch,
+            branch_with_child_count,
             modules,
             classes,
             doc_root,
