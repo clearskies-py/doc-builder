@@ -188,3 +188,58 @@ def test_build_callable_multiple_grandchildren(monkeypatch):
     # EnvCursor2 should have nav_order = 2 (second child of From Environment)
     assert all_init_args[3][0]["title"] == "EnvCursor2"
     assert all_init_args[3][4] == 2
+
+
+def test_build_callable_module_without_classes(monkeypatch):
+    """Test Module builder can be used as parent-only section without classes."""
+    import clearskies_doc_builder.prepare_doc_space
+
+    clearskies_doc_builder.prepare_doc_space.prepare_doc_space = lambda project_root: "/tmp/build"
+    import clearskies_doc_builder.build_callable
+
+    clearskies_doc_builder.build_callable.__globals__["prepare_doc_space"] = (
+        clearskies_doc_builder.prepare_doc_space.prepare_doc_space
+    )
+
+    all_init_args = []
+
+    class TrackingBuilder:
+        def __init__(self, branch, modules, classes, doc_root, nav_order):
+            all_init_args.append((branch, modules, classes, doc_root, nav_order))
+
+        def build(self):
+            pass
+
+    # Config with a parent section that has no classes (just acts as navigation parent)
+    config = {
+        "tree": [
+            {
+                "title": "Cursors",
+                "source": "clearskies.cursors.Cursor",
+                "builder": "clearskies_doc_builder.builders.Module",
+                # No "classes" field - this is a parent-only section
+            },
+            {
+                "title": "IAM Cursors",
+                "source": "clearskies.cursors.iam.IamCursor",
+                "builder": "clearskies_doc_builder.builders.Module",
+                "parent": "Cursors",
+                "classes": ["clearskies.cursors.iam.RdsMysql"],
+            },
+        ]
+    }
+    modules = DummyModule()
+    classes = DummyClass([TrackingBuilder, TrackingBuilder])
+    build_callable(modules, classes, config, "/tmp")
+
+    # Verify both builders were called
+    assert len(all_init_args) == 2
+
+    # First item (Cursors) should be top-level with no classes
+    assert all_init_args[0][0]["title"] == "Cursors"
+    assert "classes" not in all_init_args[0][0] or all_init_args[0][0].get("classes") is None
+
+    # Second item (IAM Cursors) should have parent = Cursors
+    assert all_init_args[1][0]["title"] == "IAM Cursors"
+    assert all_init_args[1][0]["parent"] == "Cursors"
+    assert all_init_args[1][0]["classes"] == ["clearskies.cursors.iam.RdsMysql"]

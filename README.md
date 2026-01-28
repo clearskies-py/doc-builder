@@ -122,6 +122,38 @@ This creates:
 
 The `grand_parent` field enables the Jekyll "just-the-docs" theme's three-level navigation, allowing you to document submodule classes under their logical grouping.
 
+#### Parent-Only Sections (No Classes)
+
+You can create a parent section that only serves as a navigation container without documenting any classes directly. This is useful when you want to group multiple submodules under a common heading:
+
+```json
+{
+  "tree": [
+    {
+      "title": "Cursors",
+      "source": "clearskies.cursors.Cursor",
+      "builder": "clearskies_doc_builder.builders.Module"
+    },
+    {
+      "title": "IAM Cursors",
+      "source": "clearskies.cursors.iam.IamCursor",
+      "builder": "clearskies_doc_builder.builders.Module",
+      "parent": "Cursors",
+      "classes": ["clearskies.cursors.iam.RdsMysql"]
+    },
+    {
+      "title": "Port Forwarding",
+      "source": "clearskies.cursors.port_forwarding.PortForwarder",
+      "builder": "clearskies_doc_builder.builders.Module",
+      "parent": "Cursors",
+      "classes": ["clearskies.cursors.port_forwarding.Ssm"]
+    }
+  ]
+}
+```
+
+Note that the "Cursors" entry has no `classes` field - it just creates an index page with the overview from the source class docblock. The child sections ("IAM Cursors" and "Port Forwarding") will appear as sub-navigation items under "Cursors".
+
 #### Using SingleClass for Individual Classes
 
 You can also use `SingleClass` builder for documenting individual classes within a hierarchy:

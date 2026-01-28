@@ -9,7 +9,7 @@ from .builder import Builder
 class Module(Builder):
     def __init__(self, branch, modules, classes, doc_root, nav_order):
         super().__init__(branch, modules, classes, doc_root, nav_order)
-        self.class_list = branch["classes"]
+        self.class_list = branch.get("classes", [])
         self.args_to_additional_attributes_map = branch.get("args_to_additional_attributes_map", {})
         self.parent = branch.get("parent", False)
         self.grand_parent = branch.get("grand_parent", False)
