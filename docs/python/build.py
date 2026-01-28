@@ -5,6 +5,7 @@
 #     "clear-skies-doc-builder",
 # ]
 # ///
+from __future__ import annotations
 
 import clearskies_doc_builder
 
