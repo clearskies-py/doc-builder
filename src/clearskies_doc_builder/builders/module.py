@@ -11,14 +11,43 @@ class Module(Builder):
         super().__init__(branch, modules, classes, doc_root, nav_order)
         self.class_list = branch["classes"]
         self.args_to_additional_attributes_map = branch.get("args_to_additional_attributes_map", {})
+        self.parent = branch.get("parent", False)
+        self.grand_parent = branch.get("grand_parent", False)
 
     def build(self):
         title_snake_case = clearskies.functional.string.title_case_to_snake_case(self.title.replace(" ", "")).replace(
             "_", "-"
         )
-        section_folder_path = self.doc_root / title_snake_case
+
+        # Determine the section folder path based on hierarchy
+        if self.grand_parent:
+            # Three-level hierarchy: grand_parent/parent/title/
+            grand_parent_snake = (
+                clearskies.functional.string.title_case_to_snake_case(self.grand_parent)
+                .replace("_", "-")
+                .replace(" ", "")
+            )
+            parent_snake = (
+                clearskies.functional.string.title_case_to_snake_case(self.parent).replace("_", "-").replace(" ", "")
+            )
+            section_name = f"{grand_parent_snake}/{parent_snake}/{title_snake_case}"
+            section_folder_path = self.doc_root / grand_parent_snake / parent_snake / title_snake_case
+        elif self.parent:
+            # Two-level hierarchy: parent/title/
+            parent_snake = (
+                clearskies.functional.string.title_case_to_snake_case(self.parent).replace("_", "-").replace(" ", "")
+            )
+            section_name = f"{parent_snake}/{title_snake_case}"
+            section_folder_path = self.doc_root / parent_snake / title_snake_case
+        else:
+            # Top-level: title/
+            section_name = title_snake_case
+            section_folder_path = self.doc_root / title_snake_case
+
         source_class = self.classes.find(f"import_path={self.source}")
-        self.make_index_from_class_overview(title_snake_case, source_class, section_folder_path)
+        self.make_index_from_class_overview_with_hierarchy(
+            title_snake_case, source_class, section_folder_path, section_name
+        )
 
         default_args = self.default_args()
 
@@ -28,7 +57,12 @@ class Module(Builder):
             source_class = self.classes.find(f"import_path={class_name}")
             title = source_class.name
             filename = clearskies.functional.string.title_case_to_snake_case(source_class.name).replace("_", "-")
-            class_doc = self.build_header(source_class.name, filename, title_snake_case, self.title, nav_order, False)
+            # For classes within a module, the module title becomes the parent
+            # and if the module has a parent, that becomes the grand_parent
+            class_grand_parent = self.parent if self.parent else None
+            class_doc = self.build_header(
+                source_class.name, filename, section_name, self.title, nav_order, False, class_grand_parent
+            )
             (elevator_pitch, overview) = self.parse_overview_doc(
                 self.raw_docblock_to_md(source_class.doc).lstrip("\n").lstrip(" ")
             )

@@ -30,6 +30,40 @@ class Builder:
         with output_file.open(mode="w") as doc_file:
             doc_file.write(doc)
 
+    def make_index_from_class_overview_with_hierarchy(
+        self, title_snake_case, source_class, section_folder_path, section_name, parent=None, grand_parent=None
+    ):
+        """
+        Create an index file for a module section with support for nested hierarchy.
+
+        This method creates the index.md file for a module section, supporting up to 3 levels
+        of navigation hierarchy (grand_parent -> parent -> current).
+
+        Args:
+            title_snake_case: The snake-case version of the title for the filename
+            source_class: The source class to extract documentation from
+            section_folder_path: Path to the section folder
+            section_name: The section name for permalink generation
+            parent: Optional parent title for 2-level hierarchy
+            grand_parent: Optional grand_parent title for 3-level hierarchy
+        """
+        filename = "index"
+        section_folder_path.mkdir(parents=True, exist_ok=True)
+
+        # Use instance attributes if not provided as arguments
+        parent = parent if parent is not None else getattr(self, "parent", None)
+        grand_parent = grand_parent if grand_parent is not None else getattr(self, "grand_parent", None)
+
+        doc = self.build_header(self.title, filename, section_name, parent, self.nav_order, True, grand_parent)
+        (elevator_pitch, overview) = self.parse_overview_doc(
+            self.raw_docblock_to_md(source_class.doc).lstrip("\n").lstrip(" ")
+        )
+        doc += f"\n\n# {self.title}\n\n{elevator_pitch}\n\n## Overview\n\n{overview}"
+
+        output_file = section_folder_path / f"{filename}.md"
+        with output_file.open(mode="w") as doc_file:
+            doc_file.write(doc)
+
     def parse_overview_doc(self, overview_doc):
         parts = overview_doc.lstrip("\n").split("\n", 1)
         if len(parts) < 2:
@@ -105,7 +139,7 @@ class Builder:
         self._attribute_cache[source_class.source_file] = doc_strings
         return doc_strings
 
-    def build_header(self, title, filename, section_name, parent, nav_order, has_children):
+    def build_header(self, title, filename, section_name, parent, nav_order, has_children, grand_parent=None):
         permalink = "/docs/" + (f"{section_name}/" if section_name else "") + f"{filename}.html"
         header = f"""---
 layout: default
@@ -113,6 +147,8 @@ title: {title}
 permalink: {permalink}
 nav_order: {nav_order}
 """
+        if grand_parent:
+            header += f"grand_parent: {grand_parent}\n"
         if parent:
             header += f"parent: {parent}\n"
         if has_children:
