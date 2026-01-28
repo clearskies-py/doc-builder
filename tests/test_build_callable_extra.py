@@ -243,3 +243,207 @@ def test_build_callable_module_without_classes(monkeypatch):
     assert all_init_args[1][0]["title"] == "IAM Cursors"
     assert all_init_args[1][0]["parent"] == "Cursors"
     assert all_init_args[1][0]["classes"] == ["clearskies.cursors.iam.RdsMysql"]
+
+
+def test_build_callable_entry_type_sorting(monkeypatch):
+    """Test that entries are sorted by entry_type (submodules first) then alphabetically."""
+    import clearskies_doc_builder.prepare_doc_space
+
+    clearskies_doc_builder.prepare_doc_space.prepare_doc_space = lambda project_root: "/tmp/build"
+    import clearskies_doc_builder.build_callable
+
+    clearskies_doc_builder.build_callable.__globals__["prepare_doc_space"] = (
+        clearskies_doc_builder.prepare_doc_space.prepare_doc_space
+    )
+
+    all_init_args = []
+
+    class TrackingBuilder:
+        def __init__(self, branch, modules, classes, doc_root, nav_order):
+            all_init_args.append((branch, modules, classes, doc_root, nav_order))
+
+        def build(self):
+            pass
+
+    # Config with mixed entry_types under the same parent
+    # Classes: Zebra, Apple
+    # Submodules: Mango, Banana
+    # Expected order: Banana (submodule), Mango (submodule), Apple (class), Zebra (class)
+    config = {
+        "tree": [
+            {"title": "Cursors", "source": "", "builder": "dummy.path.Cursors"},
+            {
+                "title": "Zebra",
+                "source": "",
+                "builder": "dummy.path.Zebra",
+                "parent": "Cursors",
+                "entry_type": "class",
+            },
+            {
+                "title": "Apple",
+                "source": "",
+                "builder": "dummy.path.Apple",
+                "parent": "Cursors",
+                "entry_type": "class",
+            },
+            {
+                "title": "Mango",
+                "source": "",
+                "builder": "dummy.path.Mango",
+                "parent": "Cursors",
+                "entry_type": "submodule",
+            },
+            {
+                "title": "Banana",
+                "source": "",
+                "builder": "dummy.path.Banana",
+                "parent": "Cursors",
+                "entry_type": "submodule",
+            },
+        ]
+    }
+    modules = DummyModule()
+    classes = DummyClass([TrackingBuilder] * 5)
+    build_callable(modules, classes, config, "/tmp")
+
+    # Verify all five builders were called
+    assert len(all_init_args) == 5
+
+    # Get nav_orders for each child entry (skip the parent at index 0)
+    child_nav_orders = {all_init_args[i][0]["title"]: all_init_args[i][4] for i in range(1, 5)}
+
+    # Submodules should come first (alphabetically): Banana=1, Mango=2
+    # Classes should come after (alphabetically): Apple=3, Zebra=4
+    assert child_nav_orders["Banana"] == 1, f"Banana should be 1, got {child_nav_orders['Banana']}"
+    assert child_nav_orders["Mango"] == 2, f"Mango should be 2, got {child_nav_orders['Mango']}"
+    assert child_nav_orders["Apple"] == 3, f"Apple should be 3, got {child_nav_orders['Apple']}"
+    assert child_nav_orders["Zebra"] == 4, f"Zebra should be 4, got {child_nav_orders['Zebra']}"
+
+
+def test_build_callable_entry_type_sorting_without_type(monkeypatch):
+    """Test that entries without entry_type are sorted after submodules and classes."""
+    import clearskies_doc_builder.prepare_doc_space
+
+    clearskies_doc_builder.prepare_doc_space.prepare_doc_space = lambda project_root: "/tmp/build"
+    import clearskies_doc_builder.build_callable
+
+    clearskies_doc_builder.build_callable.__globals__["prepare_doc_space"] = (
+        clearskies_doc_builder.prepare_doc_space.prepare_doc_space
+    )
+
+    all_init_args = []
+
+    class TrackingBuilder:
+        def __init__(self, branch, modules, classes, doc_root, nav_order):
+            all_init_args.append((branch, modules, classes, doc_root, nav_order))
+
+        def build(self):
+            pass
+
+    # Config with mixed entry_types including entries without type
+    config = {
+        "tree": [
+            {"title": "Cursors", "source": "", "builder": "dummy.path.Cursors"},
+            {
+                "title": "NoType",
+                "source": "",
+                "builder": "dummy.path.NoType",
+                "parent": "Cursors",
+                # No entry_type
+            },
+            {
+                "title": "MyClass",
+                "source": "",
+                "builder": "dummy.path.MyClass",
+                "parent": "Cursors",
+                "entry_type": "class",
+            },
+            {
+                "title": "MySubmodule",
+                "source": "",
+                "builder": "dummy.path.MySubmodule",
+                "parent": "Cursors",
+                "entry_type": "submodule",
+            },
+        ]
+    }
+    modules = DummyModule()
+    classes = DummyClass([TrackingBuilder] * 4)
+    build_callable(modules, classes, config, "/tmp")
+
+    # Get nav_orders for each child entry
+    child_nav_orders = {all_init_args[i][0]["title"]: all_init_args[i][4] for i in range(1, 4)}
+
+    # Order: MySubmodule (submodule=1), MyClass (class=2), NoType (other=3)
+    assert child_nav_orders["MySubmodule"] == 1
+    assert child_nav_orders["MyClass"] == 2
+    assert child_nav_orders["NoType"] == 3
+
+
+def test_build_callable_auto_infer_entry_type(monkeypatch):
+    """Test that entry_type is automatically inferred from builder name."""
+    import clearskies_doc_builder.prepare_doc_space
+
+    clearskies_doc_builder.prepare_doc_space.prepare_doc_space = lambda project_root: "/tmp/build"
+    import clearskies_doc_builder.build_callable
+
+    clearskies_doc_builder.build_callable.__globals__["prepare_doc_space"] = (
+        clearskies_doc_builder.prepare_doc_space.prepare_doc_space
+    )
+
+    all_init_args = []
+
+    class TrackingBuilder:
+        def __init__(self, branch, modules, classes, doc_root, nav_order):
+            all_init_args.append((branch, modules, classes, doc_root, nav_order))
+
+        def build(self):
+            pass
+
+    # Config using actual builder names that will be auto-detected
+    # Module -> submodule, SingleClass -> class
+    config = {
+        "tree": [
+            {"title": "Cursors", "source": "", "builder": "clearskies_doc_builder.builders.Module"},
+            {
+                "title": "Zebra Class",
+                "source": "",
+                "builder": "clearskies_doc_builder.builders.SingleClass",  # Auto-detected as "class"
+                "parent": "Cursors",
+            },
+            {
+                "title": "Apple Class",
+                "source": "",
+                "builder": "clearskies_doc_builder.builders.SingleClass",  # Auto-detected as "class"
+                "parent": "Cursors",
+            },
+            {
+                "title": "Mango Submodule",
+                "source": "",
+                "builder": "clearskies_doc_builder.builders.Module",  # Auto-detected as "submodule"
+                "parent": "Cursors",
+            },
+            {
+                "title": "Banana Submodule",
+                "source": "",
+                "builder": "clearskies_doc_builder.builders.Module",  # Auto-detected as "submodule"
+                "parent": "Cursors",
+            },
+        ]
+    }
+    modules = DummyModule()
+    classes = DummyClass([TrackingBuilder] * 5)
+    build_callable(modules, classes, config, "/tmp")
+
+    # Verify all five builders were called
+    assert len(all_init_args) == 5
+
+    # Get nav_orders for each child entry (skip the parent at index 0)
+    child_nav_orders = {all_init_args[i][0]["title"]: all_init_args[i][4] for i in range(1, 5)}
+
+    # Submodules (Module builder) should come first (alphabetically): Banana=1, Mango=2
+    # Classes (SingleClass builder) should come after (alphabetically): Apple=3, Zebra=4
+    assert child_nav_orders["Banana Submodule"] == 1, f"Expected 1, got {child_nav_orders['Banana Submodule']}"
+    assert child_nav_orders["Mango Submodule"] == 2, f"Expected 2, got {child_nav_orders['Mango Submodule']}"
+    assert child_nav_orders["Apple Class"] == 3, f"Expected 3, got {child_nav_orders['Apple Class']}"
+    assert child_nav_orders["Zebra Class"] == 4, f"Expected 4, got {child_nav_orders['Zebra Class']}"

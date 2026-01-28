@@ -175,3 +175,75 @@ You can also use `SingleClass` builder for documenting individual classes within
   ]
 }
 ```
+
+### Automatic Navigation Ordering
+
+Child entries under a parent are automatically sorted so that submodules appear first (alphabetically), followed by individual classes (alphabetically). The entry type is **automatically inferred** from the builder:
+
+- **`Module` builder** → treated as "submodule" (appears first)
+- **`SingleClass` / `SingleClassToSection` builder** → treated as "class" (appears after submodules)
+- **Other builders** → appear last
+
+#### Example
+
+```json
+{
+  "tree": [
+    {
+      "title": "Cursors",
+      "source": "clearskies.cursors.Cursor",
+      "builder": "clearskies_doc_builder.builders.Module"
+    },
+    {
+      "title": "Memory Cursor",
+      "source": "clearskies.cursors.MemoryCursor",
+      "builder": "clearskies_doc_builder.builders.SingleClass",
+      "parent": "Cursors"
+    },
+    {
+      "title": "File Cursor",
+      "source": "clearskies.cursors.FileCursor",
+      "builder": "clearskies_doc_builder.builders.SingleClass",
+      "parent": "Cursors"
+    },
+    {
+      "title": "From Environment",
+      "source": "clearskies.cursors.from_environment.FromEnvironmentBase",
+      "builder": "clearskies_doc_builder.builders.Module",
+      "parent": "Cursors",
+      "classes": ["clearskies.cursors.from_environment.EnvCursor"]
+    },
+    {
+      "title": "AWS",
+      "source": "clearskies.cursors.aws.AWSBase",
+      "builder": "clearskies_doc_builder.builders.Module",
+      "parent": "Cursors",
+      "classes": ["clearskies.cursors.aws.SecretsManager"]
+    }
+  ]
+}
+```
+
+This will generate navigation in the following order under "Cursors":
+1. **AWS** (Module builder = submodule, alphabetically first)
+2. **From Environment** (Module builder = submodule, alphabetically second)
+3. **File Cursor** (SingleClass builder = class, alphabetically first)
+4. **Memory Cursor** (SingleClass builder = class, alphabetically second)
+
+This ensures a consistent navigation structure where submodules (which typically contain multiple classes) are grouped together at the top, followed by individual class documentation.
+
+#### Manual Override with `entry_type`
+
+If needed, you can explicitly set `entry_type` to override the automatic inference:
+
+```json
+{
+  "title": "Special Entry",
+  "source": "...",
+  "builder": "clearskies_doc_builder.builders.SingleClass",
+  "parent": "Cursors",
+  "entry_type": "submodule"
+}
+```
+
+Supported values: `"submodule"`, `"class"`, or omit for default behavior.
