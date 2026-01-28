@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Add ordering
 
+### Changed
+- Bump version to v2.0.9 by @github-actions[bot]
+
 ## [2.0.8] - 2026-01-28
 
 ### Added
