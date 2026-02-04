@@ -9,6 +9,7 @@ import clearskies.model
 import clearskies.query
 from clearskies.autodoc.schema import Integer as AutoDocInteger
 from clearskies.autodoc.schema import Schema as AutoDocSchema
+from clearskies.configs import Boolean
 from clearskies.query.result import CountQueryResult, RecordQueryResult, RecordsQueryResult, SuccessQueryResult
 
 
@@ -20,17 +21,22 @@ class ModuleBackend(clearskies.backends.Backend):
         "module": lambda module, value: id(module) == id(value),
     }
 
+    can_create = Boolean(default=False)
+    can_update = Boolean(default=False)
+    can_delete = Boolean(default=False)
+    can_query = Boolean(default=True)
+
     def update(self, id: int | str, data: dict[str, Any], model: clearskies.model.Model) -> RecordQueryResult:
         """Update the record with the given id with the information from the data dictionary."""
-        raise Exception(f"The {self.__class__.__name__} only supports read operations: update is not allowed")
+        raise NotImplementedError(f"The {self.__class__.__name__} only supports read operations: update is not allowed")
 
     def create(self, data: dict[str, Any], model: clearskies.model.Model) -> RecordQueryResult:
         """Create a record with the information from the data dictionary."""
-        raise Exception(f"The {self.__class__.__name__} only supports read operations: create is not allowed")
+        raise NotImplementedError(f"The {self.__class__.__name__} only supports read operations: create is not allowed")
 
     def delete(self, id: int | str, model: clearskies.model.Model) -> SuccessQueryResult:
         """Delete the record with the given id."""
-        raise Exception(f"The {self.__class__.__name__} only supports read operations: delete is not allowed")
+        raise NotImplementedError(f"The {self.__class__.__name__} only supports read operations: delete is not allowed")
 
     def count(self, query: clearskies.query.Query) -> CountQueryResult:
         """Return the number of records which match the given query configuration."""
