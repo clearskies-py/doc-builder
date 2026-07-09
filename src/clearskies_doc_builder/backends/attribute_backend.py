@@ -12,9 +12,9 @@ from clearskies_doc_builder.backends.module_backend import ModuleBackend
 
 class AttributeBackend(ModuleBackend):
     _search_functions = {
-        "id": lambda attribute, name, value: id(attribute) == int(value),  # type: ignore
-        "name": lambda attribute, name, value: name == value,  # type: ignore
-        "type": lambda attribute, name, value: attribute.__class__ == value,  # type: ignore
+        "id": lambda attribute, name, value: id(attribute) == int(value),
+        "name": lambda attribute, name, value: name == value,
+        "type": lambda attribute, name, value: attribute.__class__ == value,
     }
 
     def records(
@@ -47,7 +47,7 @@ class AttributeBackend(ModuleBackend):
             for condition in query.conditions:
                 if condition.column_name not in self._search_functions:
                     continue
-                if not self._search_functions[condition.column_name](attribute, name, condition.values[0]):  # type: ignore
+                if not self._search_functions[condition.column_name](attribute, name, condition.values[0]):
                     matches = False
 
             if not matches:

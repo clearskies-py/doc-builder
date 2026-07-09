@@ -19,17 +19,20 @@ class Attribute(clearskies.columns.HasMany):
             readable_child_column_names=readable_child_column_names,
         )
 
-    def __get__(self, model, cls):
-        if model is None:
+    def __get__(self, instance, cls):
+        if instance is None:
             self.model_class = cls
-            return self  # type:  ignore
+            return self
 
         # this makes sure we're initialized
-        if "name" not in self._config:
-            model.get_columns()
+        if not self._config or "name" not in self._config:
+            instance.get_columns()
 
-        attributes = self.child_model.where(self.child_model_class.parent_class.equals(model.type))
+        parent_class_column = getattr(self.child_model_class, "parent_class")
+        attributes = self.child_model.where(parent_class_column.equals(instance.type))
         if self.filter:
-            return list(filter(self.filter, attributes))[0]
+            filtered_attributes = list(filter(self.filter, attributes))
+            return filtered_attributes[0]
 
-        return attributes[0]
+        all_attributes = list(attributes)
+        return all_attributes[0]

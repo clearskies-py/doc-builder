@@ -15,13 +15,13 @@ class ModuleClasses(clearskies.columns.HasMany):
             readable_child_column_names=readable_child_column_names,
         )
 
-    def __get__(self, model, cls):
-        if model is None:
+    def __get__(self, instance, cls):
+        if instance is None:
             self.model_class = cls
-            return self  # type:  ignore
+            return self
 
         # this makes sure we're initialized
-        if "name" not in self._config:
-            model.get_columns()
+        if not self._config or "name" not in self._config:
+            instance.get_columns()
 
-        return self.child_model.where(cls.module.equals(model.module))
+        return self.child_model.where(cls.module.equals(instance.module))

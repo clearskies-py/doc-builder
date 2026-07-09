@@ -1,5 +1,3 @@
-import pytest
-
 from clearskies_doc_builder.build_callable import build_callable
 
 

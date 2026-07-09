@@ -15,17 +15,17 @@ class BaseClasses(clearskies.columns.HasMany):
         self.child_model_class = model_class
         super().finalize_configuration(model_class, name)
 
-    def __get__(self, model, cls):
-        if model is None:
+    def __get__(self, instance, cls):
+        if instance is None:
             self.model_class = cls
-            return self  # type:  ignore
+            return self
 
         # this makes sure we're initialized
-        if "name" not in self._config:
-            model.get_columns()
+        if not self._config or "name" not in self._config:
+            instance.get_columns()
 
         bases = []
-        for cls in model.type.__bases__:
-            bases.append(model.model(model.backend.unpack(cls, model.module)))
+        for base_class in instance.type.__bases__:
+            bases.append(instance.model(instance.backend.unpack(base_class, instance.module)))
 
         return bases

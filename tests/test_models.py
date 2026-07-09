@@ -1,5 +1,3 @@
-import pytest
-
 from clearskies_doc_builder.models.attribute import Attribute
 from clearskies_doc_builder.models.class_model import Class
 from clearskies_doc_builder.models.module import Module

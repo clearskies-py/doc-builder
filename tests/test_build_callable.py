@@ -14,8 +14,6 @@ import sys
 sys.path.insert(0, str(pathlib.Path(__file__).parent.parent / "src"))
 import pytest
 
-import clearskies_doc_builder.prepare_doc_space
-
 
 @pytest.fixture(autouse=True)
 def patch_prepare_doc_space(monkeypatch):
@@ -25,9 +23,6 @@ def patch_prepare_doc_space(monkeypatch):
     clearskies_doc_builder.prepare_doc_space.prepare_doc_space = lambda project_root: "/tmp/build"
 
 
-import clearskies_doc_builder.build_callable
-import clearskies_doc_builder.prepare_doc_space
-from clearskies_doc_builder import models
 from clearskies_doc_builder.build_callable import build_callable
 
 prepare_doc_space_orig = None
