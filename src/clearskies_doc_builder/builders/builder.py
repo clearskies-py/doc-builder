@@ -22,7 +22,12 @@ class Builder:
 
         doc = self.build_header(self.title, filename, title_snake_case, None, self.nav_order, True)
         (elevator_pitch, overview) = self.parse_overview_doc(
-            self.raw_docblock_to_md(source_class.doc).lstrip("\n").lstrip(" ")
+            self.raw_docblock_to_md(
+                source_class.doc,
+                context=f"class '{source_class.name}' ({source_class.import_path})",
+            )
+            .lstrip("\n")
+            .lstrip(" ")
         )
         doc += f"\n\n# {self.title}\n\n{elevator_pitch}\n\n## Overview\n\n{overview}"
 
@@ -56,7 +61,12 @@ class Builder:
 
         doc = self.build_header(self.title, filename, section_name, parent, self.nav_order, True, grand_parent)
         (elevator_pitch, overview) = self.parse_overview_doc(
-            self.raw_docblock_to_md(source_class.doc).lstrip("\n").lstrip(" ")
+            self.raw_docblock_to_md(
+                source_class.doc,
+                context=f"class '{source_class.name}' ({source_class.import_path})",
+            )
+            .lstrip("\n")
+            .lstrip(" ")
         )
         doc += f"\n\n# {self.title}\n\n{elevator_pitch}\n\n## Overview\n\n{overview}"
 
@@ -156,7 +166,17 @@ nav_order: {nav_order}
         header += "---"
         return header
 
-    def raw_docblock_to_md(self, docblock):
+    def raw_docblock_to_md(self, docblock, context="docblock"):
+        if docblock is None:
+            raise TypeError(
+                f"Missing docstring for {context}. "
+                "Expected a string docblock but got None. "
+                "Add a class/attribute docstring or update the docs config to skip this item."
+            )
+        if isinstance(docblock, bytes):
+            docblock = docblock.decode("utf-8", errors="replace")
+        if not isinstance(docblock, str):
+            raise TypeError(f"Invalid docstring type for {context}: {type(docblock).__name__}. Expected str or bytes.")
         return re.sub(r"\n    ", "\n", docblock)
 
     def default_args(self):

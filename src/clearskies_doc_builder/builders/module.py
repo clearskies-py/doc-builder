@@ -69,7 +69,12 @@ class Module(Builder):
                 source_class.name, filename, section_name, self.title, nav_order, False, class_grand_parent
             )
             (elevator_pitch, overview) = self.parse_overview_doc(
-                self.raw_docblock_to_md(source_class.doc).lstrip("\n").lstrip(" ")
+                self.raw_docblock_to_md(
+                    source_class.doc,
+                    context=f"class '{source_class.name}' ({source_class.import_path})",
+                )
+                .lstrip("\n")
+                .lstrip(" ")
             )
             class_doc += f"\n\n# {title}\n\n{elevator_pitch}\n\n"
             main_doc = f"## Overview\n\n{overview}\n\n"
@@ -99,7 +104,16 @@ class Module(Builder):
                 arg_data = arguments[arg]
                 table_of_contents += f" {index + 2}. [{arg}](#{arg})\n"
                 main_doc += f"## {arg}\n**" + ("Required" if arg_data["required"] else "Optional") + "**\n\n"
-                main_doc += self.raw_docblock_to_md(arg_data["doc"].replace('"""', "")) + "\n\n"
+                argument_doc = arg_data["doc"]
+                if isinstance(argument_doc, str):
+                    argument_doc = argument_doc.replace('"""', "")
+                main_doc += (
+                    self.raw_docblock_to_md(
+                        argument_doc,
+                        context=f"argument '{arg}' in class '{source_class.name}'",
+                    )
+                    + "\n\n"
+                )
 
             class_doc += f"{table_of_contents}\n{main_doc}"
 
